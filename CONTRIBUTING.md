@@ -1,76 +1,66 @@
-# Contributing to [project-title]
+# Contributing to Eclipse Cargo Tracker
 
-This project welcomes contributions and suggestions.  Most contributions require you to agree to a
-Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
-the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.
+Thanks for your interest in this project. Your feedback and contributions are most welcome. Please consider contacting the developers of the project before proposing a change, ideally via the [mailing list](https://accounts.eclipse.org/mailing-list/cargotracker-dev).
 
-When you submit a pull request, a CLA bot will automatically determine whether you need to provide
-a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions
-provided by the bot. You will only need to do this once across all repos using our CLA.
+## Project description
 
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
-For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
-contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+The project demonstrates how you can develop applications with Jakarta EE using widely adopted architectural best practices like Domain-Driven Design (DDD).
 
- - [Code of Conduct](#coc)
- - [Issues and Bugs](#issue)
- - [Feature Requests](#feature)
- - [Submission Guidelines](#submit)
+* https://projects.eclipse.org/projects/ee4j.cargotracker
 
-## <a name="coc"></a> Code of Conduct
-Help us keep this project open and inclusive. Please read and follow our [Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
+## Developer resources
 
-## <a name="issue"></a> Found an Issue?
-If you find a bug in the source code or a mistake in the documentation, you can help us by
-[submitting an issue](#submit-issue) to the GitHub Repository. Even better, you can
-[submit a Pull Request](#submit-pr) with a fix.
+The project maintains the following source code repository. The project is built using Maven.
 
-## <a name="feature"></a> Want a Feature?
-You can *request* a new feature by [submitting an issue](#submit-issue) to the GitHub
-Repository. If you would like to *implement* a new feature, please submit an issue with
-a proposal for your work first, to be sure that we can use it.
+* https://github.com/eclipse-ee4j/cargotracker
 
-* **Small Features** can be crafted and directly [submitted as a Pull Request](#submit-pr).
+Issues are tracked on GitHub. Please look through the issues before proposing a change.
 
-## <a name="submit"></a> Submission Guidelines
+* https://github.com/eclipse-ee4j/cargotracker/issues
 
-### <a name="submit-issue"></a> Submitting an Issue
-Before you submit an issue, search the archive, maybe your question was already answered.
+The following are the project website and documentation. Please look through them before proposing a change.
 
-If your issue appears to be a bug, and hasn't been reported, open a new issue.
-Help us to maximize the effort we can spend fixing issues and adding new
-features, by not reporting duplicate issues.  Providing the following information will increase the
-chances of your issue being dealt with quickly:
+* https://eclipse-ee4j.github.io/cargotracker
+* https://github.com/eclipse-ee4j/cargotracker/wiki
 
-* **Overview of the Issue** - if an error is being thrown a non-minified stack trace helps
-* **Version** - what version is affected (e.g. 0.1.2)
-* **Motivation for or Use Case** - explain what are you trying to do and why the current behavior is a bug for you
-* **Browsers and Operating System** - is this a problem with all browsers?
-* **Reproduce the Error** - provide a live example or a unambiguous set of steps
-* **Related Issues** - has a similar issue been reported before?
-* **Suggest a Fix** - if you can't fix the bug yourself, perhaps you can point to what might be
-  causing the problem (line of code or commit)
+## Development Standards/Style
 
-You can file new issues by providing the above information at the corresponding repository's issues link: https://github.com/[organization-name]/[repository-name]/issues/new].
+The project complies with the [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html). You can use the [google-java-format](https://github.com/google/google-java-format) tool to help you comply with the Google Java Style Guide. You can use the tool with most major IDEs such as Eclipse and IntelliJ.
 
-### <a name="submit-pr"></a> Submitting a Pull Request (PR)
-Before you submit your Pull Request (PR) consider the following guidelines:
+In addition, for all XML, XHTML and HTML files we use a column/line width of 100 and we use 4 spaces for indentation. Please adjust the formatting settings of your IDE accordingly.
 
-* Search the repository (https://github.com/[organization-name]/[repository-name]/pulls) for an open or closed PR
-  that relates to your submission. You don't want to duplicate effort.
+## Roadmap
+The project is currently working on Jakarta EE 8 support. The associated issues are under the jakartaee8 milestone: https://github.com/eclipse-ee4j/cargotracker/milestone/2. The project will then work on Jakarta EE 9 support. The associated issues are under the jakartaee9 milestone: https://github.com/eclipse-ee4j/cargotracker/milestone/3.
 
-* Make your changes in a new git fork:
+Work on any other issues or other changes are welcome, especially issues marked with the 'good first issue' (https://github.com/eclipse-ee4j/cargotracker/labels/good%20first%20issue) and 'help wanted' (https://github.com/eclipse-ee4j/cargotracker/labels/help%20wanted) labels.
 
-* Commit your changes using a descriptive commit message
-* Push your fork to GitHub:
-* In GitHub, create a pull request
-* If we suggest changes then:
-  * Make the required updates.
-  * Rebase your fork and force push to your GitHub repository (this will update your Pull Request):
+## Eclipse Development Process
 
-    ```shell
-    git rebase master -i
-    git push -f
-    ```
+This Eclipse Foundation open project is governed by the Eclipse Foundation
+Development Process and operates under the terms of the Eclipse IP Policy.
 
-That's it! Thank you for your contribution!
+* https://eclipse.org/projects/dev_process
+* https://www.eclipse.org/org/documents/Eclipse_IP_Policy.pdf
+
+## Eclipse Contributor Agreement
+
+Before your contribution can be accepted by the project team contributors must
+electronically sign the Eclipse Contributor Agreement (ECA).
+
+* http://www.eclipse.org/legal/ECA.php
+
+Commits that are provided by non-committers must have a Signed-off-by field in
+the footer indicating that the author is aware of the terms by which the
+contribution has been provided to the project. The non-committer must
+additionally have an Eclipse Foundation account and must have a signed Eclipse
+Contributor Agreement (ECA) on file.
+
+For more information, please see the Eclipse Committer Handbook:
+https://www.eclipse.org/projects/handbook/#resources-commit
+
+## Contact
+
+Contact the project developers via the project's "dev" list. Please consider posting to the list before submitting an issue or pull request.
+
+* https://accounts.eclipse.org/mailing-list/cargotracker-dev
+>>>>>>> origin/cargotracker-wls-aks-dd-1343682
