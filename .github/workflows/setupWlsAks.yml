@@ -139,7 +139,7 @@ jobs:
                         s/#appPackageUrls#/${cargoTrackerBlobUrl}/g; \
                         s/#servicePrincipal#/${servicePrincipal}/g; \
                         s/#wdtRuntimePassword#/${wdtRuntimePassword}/g; \
-                        s/#testbranchName#/${aksRepoBranchName}/g; \
+                        s/#testbranchName#/${aksRepoBranchName}/g" \
                         cargotracker/src/test/aks/parameters.json
             - name: Deploy WebLogic Server Cluster Domain offer
               id: deploy-wls-cluster
