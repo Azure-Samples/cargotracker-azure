@@ -141,6 +141,11 @@ jobs:
                         s/#wdtRuntimePassword#/${wdtRuntimePassword}/g; \
                         s/#testbranchName#/${aksRepoBranchName}/g" \
                         cargotracker/src/test/aks/parameters.json
+            - name: Archive parameters.json
+              uses: actions/upload-artifact@v1
+              with:
+                name: parameters
+                path: cargotracker/src/test/aks/parameters.json
             - name: Deploy WebLogic Server Cluster Domain offer
               id: deploy-wls-cluster
               uses: azure/CLI@v1
