@@ -59,13 +59,14 @@ jobs:
                 ref: ${{ env.refJavaee }}
             - name: Build azure-javaee-iaas
               run: mvn -DskipTests clean install --file azure-javaee-iaas/pom.xml
-            - name: Checkout galiacheng/arm-oraclelinux-wls-aks
+            - name: Checkout edburns/weblogic-azure
               uses: actions/checkout@v2
               with:
-                repository: galiacheng/arm-oraclelinux-wls-aks
-                path: arm-oraclelinux-wls-aks
+                repository: edburns/weblogic-azure
+                path: weblogic-azure
+                ref: ${{ env.aksRepoBranchName }}
             - name: Build and test arm-oraclelinux-wls-aks
-              run: mvn -Pbicep -Ddev -Passembly clean install --file arm-oraclelinux-wls-aks/pom.xml
+              run: mvn -Pbicep -Ddev -Passembly clean install --file weblogic-azure/weblogic-azure-aks/pom.xml
             - name: Generate artifact file name and path
               id: artifact_file
               run: |
@@ -85,15 +86,16 @@ jobs:
         needs: preflight
         runs-on: ubuntu-latest
         steps:
-            - name: Checkout galiacheng/arm-oraclelinux-wls-aks
+            - name: Checkout edburns/weblogic-azure
               uses: actions/checkout@v2
               with:
-                repository: galiacheng/arm-oraclelinux-wls-aks
-                path: arm-oraclelinux-wls-aks
-            - name: Get version information from arm-oraclelinux-wls-aks/pom.xml
+                repository: edburns/weblogic-azure
+                path: weblogic-azure
+                ref: ${{ env.aksRepoBranchName }}
+            - name: Get version information from weblogic-azure/weblogic-azure-aks/pom.xml
               id: version
               run: |
-                version=$(awk '/<version>[^<]+<\/version>/{gsub(/<version>|<\/version>/,"",$1);print $1;exit;}' arm-oraclelinux-wls-aks/pom.xml)
+                version=$(awk '/<version>[^<]+<\/version>/{gsub(/<version>|<\/version>/,"",$1);print $1;exit;}' weblogic-azure/weblogic-azure-aks/pom.xml)
                 echo "version=${version}" >> $GITHUB_ENV
             - name: Output artifact name for Download action
               id: artifact_file
