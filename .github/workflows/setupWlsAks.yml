@@ -139,8 +139,10 @@ jobs:
                         s/#appPackageUrls#/${cargoTrackerBlobUrl}/g; \
                         s/#servicePrincipal#/${servicePrincipal}/g; \
                         s/#wdtRuntimePassword#/${wdtRuntimePassword}/g; \
-                        s/#testbranchName#/${aksRepoBranchName}/g" \
+                        s/#testbranchName#/${aksRepoBranchName}/g; \
+                        s/#gitUserName#/${aksRepoUserName}/g" \
                         cargotracker/src/test/aks/parameters.json
+                cat cargotracker/src/test/aks/parameters.json
             - name: Archive parameters.json
               uses: actions/upload-artifact@v1
               with:
