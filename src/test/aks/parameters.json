@@ -51,7 +51,9 @@
             "value": true
         },
         "appPackageUrls": {
-            "value": ["#appPackageUrls#"]
+            "value": [
+                "#appPackageUrls#"
+            ]
         },
         "appReplicas": {
             "value": 2
@@ -64,6 +66,15 @@
         },
         "createDNSZone": {
             "value": true
+        },
+        "databaseType": {
+            "value": "postgresql"
+        },
+        "dbPassword": {
+            "value": "#dbPassword#"
+        },
+        "dbUser": {
+            "value": "#dbUser#"
         },
         "dnsNameforApplicationGateway": {
             "value": "wlsgw"
@@ -80,6 +91,9 @@
         "dnszoneRGName": {
             "value": "dns-contoso-rg"
         },
+        "dsConnectionURL": {
+            "value": "#dsConnectionURL#"
+        },
         "enableAppGWIngress": {
             "value": true
         },
@@ -89,10 +103,13 @@
         "enableAzureFileShare": {
             "value": false
         },
+        "enableDB": {
+            "value": true
+        },
         "enableDNSConfiguration": {
             "value": false
         },
-        "enableCookieBasedAffinity":{
+        "enableCookieBasedAffinity": {
             "value": true
         },
         "identity": {
@@ -102,6 +119,9 @@
                     "#userAssignedManagedIdentity#": {}
                 }
             }
+        },
+        "jdbcDataSourceName": {
+            "value": "jdbc/CargoTrackerDB"
         },
         "keyVaultName": {
             "value": "kv-contoso"

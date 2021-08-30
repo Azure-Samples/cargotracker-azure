@@ -143,7 +143,10 @@ jobs:
                         s/#servicePrincipal#/${servicePrincipal}/g; \
                         s/#wdtRuntimePassword#/${wdtRuntimePassword}/g; \
                         s/#testbranchName#/${aksRepoBranchName}/g; \
-                        s/#gitUserName#/${aksRepoUserName}/g" \
+                        s/#gitUserName#/${aksRepoUserName}/g; \
+                        s/#dbPassword#/'${dbPassword}'/g; \
+                        s/#dbUser#/'${dbAdminUser}@${dbName}'/g; \
+                        s/#dsConnectionURL#/'jdbc:postgresql:\/\/${dbName}.postgres.database.azure.com:5432\/postgres'/g" \
                         cargotracker/src/test/aks/parameters.json
             - name: Deploy WebLogic Server Cluster Domain offer
               id: deploy-wls-cluster
@@ -157,37 +160,3 @@ jobs:
                     --name wls-on-aks \
                     --parameters @cargotracker/src/test/aks/parameters.json \
                     --template-file ${artifactName}/mainTemplate.json
-            - name: Prepare configmap source file
-              run: |
-                echo "replace placeholders using real parameter"
-                sed -i "s/#dbUrl#/'jdbc:postgresql:\/\/${dbName}.postgres.database.azure.com:5432\/postgres'/g; \
-                        s/#dbPassword#/'${dbPassword}'/g; \
-                        s/#dbUser#/'${dbAdminUser}@${dbName}'/g" \
-                        cargotracker/src/test/aks/cargo-tracker-db-jms.yaml
-            - name: Install kubectl
-              run: |
-                curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-                curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
-                sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-                kubectl version --client
-            - name: Connect to AKS cluster
-              run: |
-                echo "connect to cluster"
-                aksClusterName=$(az resource list --resource-group ${{ env.resourceGroupForWlsAks }} --query "[?type=='Microsoft.ContainerService/managedClusters'].name|[0]" -o tsv)
-                az aks get-credentials --resource-group ${{ env.resourceGroupForWlsAks }} --name $aksClusterName
-            - name: Generate&Apply configmap
-              run: |
-                echo "create configmap"
-                DB_CONFIGMAP_NAME=${{ env.aksClusterConfigMapName }}
-                kubectl -n sample-domain1-ns create configmap ${DB_CONFIGMAP_NAME} \
-                --from-file=cargotracker/src/test/aks/cargo-tracker-db-jms.yaml
-                kubectl -n sample-domain1-ns label configmap ${DB_CONFIGMAP_NAME} \
-                weblogic.domainUID=sample-domain1
-
-                restartVersion=$(kubectl -n sample-domain1-ns get domain sample-domain1 '-o=jsonpath={.spec.restartVersion}')
-                # increase restart version
-                restartVersion=$((restartVersion + 1))
-                echo "append configmap and update restart version"
-                kubectl -n sample-domain1-ns patch domain sample-domain1 \
-                    --type=json \
-                    '-p=[{"op": "replace", "path": "/spec/restartVersion", "value": "'${restartVersion}'" }, {"op": "add", "path": "/spec/configuration/model/configMap", "value": "'${DB_CONFIGMAP_NAME}'" }]'
