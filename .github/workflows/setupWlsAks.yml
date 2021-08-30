@@ -144,9 +144,9 @@ jobs:
                         s/#wdtRuntimePassword#/${wdtRuntimePassword}/g; \
                         s/#testbranchName#/${aksRepoBranchName}/g; \
                         s/#gitUserName#/${aksRepoUserName}/g; \
-                        s/#dbPassword#/'${dbPassword}'/g; \
-                        s/#dbUser#/'${dbAdminUser}@${dbName}'/g; \
-                        s/#dsConnectionURL#/'jdbc:postgresql:\/\/${dbName}.postgres.database.azure.com:5432\/postgres'/g" \
+                        s/#dbPassword#/${dbPassword}/g; \
+                        s/#dbUser#/${dbAdminUser}@${dbName}/g; \
+                        s/#dsConnectionURL#/jdbc:postgresql:\/\/${dbName}.postgres.database.azure.com:5432\/postgres/g" \
                         cargotracker/src/test/aks/parameters.json
             - name: Deploy WebLogic Server Cluster Domain offer
               id: deploy-wls-cluster
