@@ -49,6 +49,8 @@ env:
     ocrSSOPSW: ${{ secrets.ORC_SSOPSW }}
     azureACRPassword: ${{ secrets.AZURE_ACR_PASSWORD }}
     imageTag: ${{ github.run_id }}${{ github.run_number }}
+    aksRepoUserName: oracle
+    aksRepoBranchName: d1d50ccfc33bbda2420d77b8aed7dc341480ccdf
 
 jobs:
     deploy-cargo-tracker:
@@ -92,16 +94,17 @@ jobs:
                 inlineScript: |
                     cargoTrackerBlobUrl=$(az storage blob url --account-name ${{ github.event.inputs.storageAccountName }} --container-name ${{ github.event.inputs.storageContainerName }} --name cargo-tracker.war -o tsv)
                     echo "cargoTrackerBlobUrl=${cargoTrackerBlobUrl}" >> $GITHUB_ENV
-            - name: Checkout galiacheng/arm-oraclelinux-wls-aks
+            - name: Checkout ${{ env.aksRepoUserName }}/weblogic-azure
               uses: actions/checkout@v2
               with:
-                repository: galiacheng/arm-oraclelinux-wls-aks
-                path: arm-oraclelinux-wls-aks
+                repository: ${{ env.aksRepoUserName }}/weblogic-azure
+                path: weblogic-azure
+                ref: ${{ env.aksRepoBranchName }}
             - name: Build image and upload to ACR
               run: |
-                chmod ugo+x -R arm-oraclelinux-wls-aks/
-                cd arm-oraclelinux-wls-aks/src/main/arm/scripts
-                ./buildWLSDockerImage.sh ${{ github.event.inputs.wlsImagePath }} ${{ github.event.inputs.azureACRServer }} ${{ github.event.inputs.azureACRUserName }} ${{ env.azureACRPassword }} ${{ env.imageTag }} ["${cargoTrackerBlobUrl}"] ${{ env.ocrSSOUser }} ${{ env.ocrSSOPSW }} ${{ github.event.inputs.wlsClusterSize }} false
+                chmod ugo+x -R weblogic-azure/
+                cd weblogic-azure/weblogic-azure-aks/src/main/arm/scripts
+                echo ${{ env.azureACRPassword }} ${{ env.ocrSSOPSW }} | ./buildWLSDockerImage.sh ${{ github.event.inputs.wlsImagePath }} ${{ github.event.inputs.azureACRServer }} ${{ github.event.inputs.azureACRUserName }} ${{ env.imageTag }} ["${cargoTrackerBlobUrl}"] ${{ env.ocrSSOUser }} ${{ github.event.inputs.wlsClusterSize }} false
             - name: Connect to AKS cluster
               run: |
                 echo "connect to cluster"

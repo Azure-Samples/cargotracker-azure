@@ -59,10 +59,10 @@ jobs:
                 ref: ${{ env.refJavaee }}
             - name: Build azure-javaee-iaas
               run: mvn -DskipTests clean install --file azure-javaee-iaas/pom.xml
-            - name: Checkout edburns/weblogic-azure
+            - name: Checkout ${{ env.aksRepoUserName }}/weblogic-azure
               uses: actions/checkout@v2
               with:
-                repository: edburns/weblogic-azure
+                repository: ${{ env.aksRepoUserName }}/weblogic-azure
                 path: weblogic-azure
                 ref: ${{ env.aksRepoBranchName }}
             - name: Build and test weblogic-azure/weblogic-azure-aks
@@ -86,10 +86,10 @@ jobs:
         needs: preflight
         runs-on: ubuntu-latest
         steps:
-            - name: Checkout edburns/weblogic-azure
+            - name: Checkout ${{ env.aksRepoUserName }}/weblogic-azure
               uses: actions/checkout@v2
               with:
-                repository: edburns/weblogic-azure
+                repository: ${{ env.aksRepoUserName }}/weblogic-azure
                 path: weblogic-azure
                 ref: ${{ env.aksRepoBranchName }}
             - name: Get version information from weblogic-azure/weblogic-azure-aks/pom.xml
