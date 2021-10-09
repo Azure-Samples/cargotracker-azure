@@ -1,0 +1,46 @@
+name: Build Application and Upload to Storage Account
+
+on:
+  workflow_dispatch:
+    inputs:
+      storageAccountName:
+        description: 'Specify storage account of uploading .war file'
+        required: true
+        default: 'wlsdsa105232069465'
+      storageContainerName:
+        description: 'Specify container of uploading .war file'
+        required: true
+        default: 'wlsdcon105232069465'
+  repository_dispatch:
+
+env:
+  refJavaee: bce4e6ec57726d4bc7992b45e1ff6e459b02fb39
+  azCliVersion: 2.23.0
+  azureCredentials: ${{ secrets.AZURE_CREDENTIALS }}
+
+jobs:
+  build-app:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - uses: azure/login@v1
+        id: azure-login
+        with:
+          creds: ${{ env.azureCredentials }}
+      - name: Checkout cargotracker
+        uses: actions/checkout@v2
+        with:
+          path: cargotracker
+      - name: Build the app
+        run: |
+          echo "build the Cargo Tracker web app"
+          mvn clean install -PweblogicOnAks --file cargotracker/pom.xml
+      - name: Upload the app to storage account
+        uses: azure/CLI@v1
+        with:
+          azcliversion: ${{ env.azCliVersion }}
+          inlineScript: |
+              az storage blob upload --account-name ${{ github.event.inputs.storageAccountName }} --container-name ${{ github.event.inputs.storageContainerName }} --file cargotracker/target/cargo-tracker.war --name cargo-tracker.war
