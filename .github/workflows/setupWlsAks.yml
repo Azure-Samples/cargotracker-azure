@@ -148,6 +148,23 @@ jobs:
                         s/#dbUser#/${dbAdminUser}@${dbName}/g; \
                         s/#dsConnectionURL#/jdbc:postgresql:\/\/${dbName}.postgres.database.azure.com:5432\/postgres/g" \
                         cargotracker/src/test/aks/parameters.json
+            - name: Archive parameters.json
+              uses: actions/upload-artifact@v1
+              with:
+                name: archivefiles
+                path: cargotracker/src/test/aks/parameters.json
+            - name: Validate Deploy of WebLogic Server Cluster Domain offer
+              id: deploy-wls-cluster
+              uses: azure/CLI@v1
+              with:
+                azcliversion: ${{ env.azCliVersion }}
+                inlineScript: |
+                    az deployment group validate \
+                    --debug \
+                    --resource-group ${{ env.resourceGroupForWlsAks }} \
+                    --name wls-on-aks \
+                    --parameters @cargotracker/src/test/aks/parameters.json \
+                    --template-file ${artifactName}/mainTemplate.json
             - name: Deploy WebLogic Server Cluster Domain offer
               id: deploy-wls-cluster
               uses: azure/CLI@v1
