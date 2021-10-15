@@ -17,7 +17,7 @@
 #
 AKS_REPO_USER_NAME=oracle
 DB_PASSWORD="Secret123!"
-# Three letters to disambiguate names. Leave blank to use ejb.
+# Three letters to disambiguate names.
 DISAMBIG_PREFIX=
 # The location of the resource group. For example `eastus`. Leave blank to use your default location.
 LOCATION=
@@ -55,9 +55,11 @@ msg() {
 
 setup_colors
 
-# get DISAMBIG_PREFIX if not set at the beginning of this file
+read -r -p "Enter a disambiguation prefix (try initials with a sequence number, such as ejb01): " DISAMBIG_PREFIX
+
 if [ "$DISAMBIG_PREFIX" == '' ] ; then
-    DISAMBIG_PREFIX=ejb
+  msg "${RED}You must enter a disambiguation prefix."
+  exit 1;
 fi
 
 # get ORC_SSOUSER if not set at the beginning of this file
