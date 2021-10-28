@@ -70,6 +70,9 @@
         "databaseType": {
             "value": "postgresql"
         },
+        "dbGlobalTranPro" {
+            "value": "EmulateTwoPhaseCommit"
+        },
         "dbPassword": {
             "value": "#dbPassword#"
         },
