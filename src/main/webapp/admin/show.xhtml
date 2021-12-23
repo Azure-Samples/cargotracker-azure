@@ -4,14 +4,14 @@
 	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui">
 <ui:composition template="/WEB-INF/templates/common/admin.xhtml">
+	<f:metadata>
+		<f:viewParam name="trackingId" value="#{cargoDetails.trackingId}" />
+		<f:event type="preRenderView" listener="#{cargoDetails.load()}" />
+	</f:metadata>
 	<ui:define name="title">Cargo Details</ui:define>
 	<ui:define name="content">
 		<div class="ui-grid-col-3" id="leftCol"></div>
 		<div class="ui-grid-col-6" id="mainCol">
-			<f:metadata>
-				<f:viewParam name="trackingId" value="#{cargoDetails.trackingId}" />
-				<f:event type="preRenderView" listener="#{cargoDetails.load()}" />
-			</f:metadata>
 			<br />
 			<p:outputLabel
 				value="Routing Details for Cargo #{cargoDetails.cargo.trackingId}"

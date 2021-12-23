@@ -9,6 +9,8 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 
+import org.eclipse.cargotracker.infrastructure.messaging.JmsQueueNames;
+
 @MessageDriven(
     activationConfig = {
       @ActivationConfigProperty(
@@ -16,7 +18,7 @@ import javax.jms.MessageListener;
           propertyValue = "javax.jms.Queue"),
       @ActivationConfigProperty(
           propertyName = "destinationLookup",
-          propertyValue = "java:app/jms/DeliveredCargoQueue")
+          propertyValue = JmsQueueNames.DELIVERED_CARGO_QUEUE)
     })
 public class DeliveredCargoConsumer implements MessageListener {
 

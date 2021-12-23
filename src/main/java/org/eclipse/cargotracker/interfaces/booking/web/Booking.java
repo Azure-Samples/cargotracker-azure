@@ -6,6 +6,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.PostConstruct;
+import javax.enterprise.context.SessionScoped;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.flow.FlowScoped;
@@ -27,6 +28,7 @@ import org.primefaces.PrimeFaces;
  */
 @Named
 @FlowScoped("booking")
+// @SessionScoped
 public class Booking implements Serializable {
 
   private static final long serialVersionUID = 1L;
