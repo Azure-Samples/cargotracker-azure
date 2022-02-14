@@ -351,7 +351,6 @@
                 <param.db.name>${env.DB_NAME}</param.db.name>
                 <param.db.user>${env.DB_USER}</param.db.user>
                 <param.db.password>${env.DB_PASSWORD}</param.db.password>
-                <param.pull.secret.name>${env.PULL_SECRET}</param.pull.secret.name>
                 <param.namespace>${env.NAMESPACE}</param.namespace>
                 <param.replicas>1</param.replicas>
             </properties>
@@ -493,66 +492,6 @@
                                     </resources>
                                 </configuration>
                             </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <version>3.0.0</version>
-                        <executions>
-                            <execution>
-                                <id>replace-jms-file</id>
-                                <phase>process-sources</phase>
-                                <configuration>
-                                    <target>
-                                        <move file="${basedir}/src/main/java/org/eclipse/cargotracker/infrastructure/messaging/JmsQueueNames.java" tofile="${basedir}/src/main/java/org/eclipse/cargotracker/infrastructure/messaging/JmsQueueNames.java.moved"/>
-                                        <copy file="${basedir}/src/main/liberty/jms/JmsQueueNames.java" todir="${basedir}/src/main/java/org/eclipse/cargotracker/infrastructure/messaging/"/>
-                                        <move file="${basedir}/src/main/java/org/eclipse/cargotracker/infrastructure/messaging/jms/JmsApplicationEvents.java" tofile="${basedir}/src/main/java/org/eclipse/cargotracker/infrastructure/messaging/jms/JmsApplicationEvents.java.moved"/>
-                                        <copy file="${basedir}/src/main/liberty/jms/JmsApplicationEvents.java" todir="${basedir}/src/main/java/org/eclipse/cargotracker/infrastructure/messaging/jms/"/>
-                                    </target>
-                                </configuration>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                            </execution>
-                            <!-- <execution>
-                                <id>restore-jms-file</id>
-                                <phase>install</phase>
-                                <configuration>
-                                    <target>
-                                        <move file="${basedir}/src/main/java/org/eclipse/cargotracker/infrastructure/messaging/JmsQueueNames.java.moved" tofile="${basedir}/src/main/java/org/eclipse/cargotracker/infrastructure/messaging/JmsQueueNames.java"/>
-                                        <move file="${basedir}/src/main/java/org/eclipse/cargotracker/infrastructure/messaging/jms/JmsApplicationEvents.java.moved" tofile="${basedir}/src/main/java/org/eclipse/cargotracker/infrastructure/messaging/jms/JmsApplicationEvents.java"/>
-                                    </target>
-                                </configuration>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                            </execution> -->
-                            <execution>
-                                <id>replace-web-xml</id>
-                                <phase>process-sources</phase>
-                                <configuration>
-                                    <target>
-                                        <move file="${basedir}/src/main/webapp/WEB-INF/web.xml" tofile="${basedir}/src/main/webapp/WEB-INF/web.xml.moved"/>
-                                        <copy file="${basedir}/src/main/liberty/webapp/WEB-INF/web.xml" todir="${basedir}/src/main/webapp/WEB-INF/"/>
-                                    </target>
-                                </configuration>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                            </execution>
-                            <!-- <execution>
-                                <id>restore-web-xml</id>
-                                <phase>install</phase>
-                                <configuration>
-                                    <target>
-                                        <delete file="${basedir}/src/main/webapp/WEB-INF/web.xml"/>
-                                        <move file="${basedir}/src/main/webapp/WEB-INF/web.xml.moved" tofile="${basedir}/src/main/webapp/WEB-INF/web.xml"/>
-                                    </target>
-                                </configuration>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                            </execution> -->
                         </executions>
                     </plugin>
                 </plugins>
