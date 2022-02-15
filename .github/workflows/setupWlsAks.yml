@@ -19,7 +19,7 @@ on:
 
 env:
     refJavaee: bce4e6ec57726d4bc7992b45e1ff6e459b02fb39
-    azCliVersion: 2.23.0
+    azCliVersion: 2.30.0
     azureCredentials: ${{ secrets.AZURE_CREDENTIALS }}
     location: eastus
     resourceGroupForWlsAks: wlsd-aks-${{ github.event.inputs.disambiguationSuffix }}-${{ github.run_number }}
