@@ -70,7 +70,7 @@
         "databaseType": {
             "value": "postgresql"
         },
-        "dbGlobalTranPro" {
+        "dbGlobalTranPro": {
             "value": "EmulateTwoPhaseCommit"
         },
         "dbPassword": {
@@ -85,7 +85,7 @@
         "dnszoneAdminConsoleLabel": {
             "value": "admin"
         },
-        "dnszoneAppGatewayLabel": {
+        "dnszoneClusterLabel": {
             "value": "www"
         },
         "dnszoneName": {
