@@ -114,15 +114,41 @@ jobs:
               run: |
                 oldImageURL=$(kubectl get domain ${{ github.event.inputs.wlsCLusterDomainName }} -n ${{ github.event.inputs.wlsClusterNamespace }} -o json | jq -r '.spec.image')
                 echo "oldImageURL=${oldImageURL}" >> $GITHUB_ENV
-            - name: Update image path
+            - name: Generate&Apply configmap with JMS and new image
               run: |
                 acrImagePath="${{ github.event.inputs.azureACRServer }}/aks-wls-images:${{ env.imageTag }}"
+                # wlsConfigmapName comes from https://github.com/oracle/weblogic-azure/blob/main/weblogic-azure-aks/src/main/arm/scripts/genDomainConfig.sh#L233
+                wlsConfigmapName=${{ github.event.inputs.wlsCLusterDomainName }}-wdt-config-map
+                wlsConfigmapJson=cargo-tracker-db.json
+                modelFilePath=models
+                mkdir ${modelFilePath}
+                echo "create configmap"
+                echo "export exisiting configmap"
+                kubectl -n ${{ github.event.inputs.wlsClusterNamespace }} get configmap ${wlsConfigmapName} -o json >${wlsConfigmapJson}
+                echo "query model keys"
+                keyList=$(cat ${wlsConfigmapJson} | jq '.data | keys[]' | tr -d "\"")
+                for item in $keyList; do
+                    data=$(cat ${wlsConfigmapJson} | jq ".data[\"${item}\"]")
+                    data=$(echo "${data:1:${#data}-2}")
+                    echo -e "${data}" >${modelFilePath}/${item}
+                done
+                # remove current configmap and create a new one
+                kubectl -n ${{ github.event.inputs.wlsClusterNamespace }} delete configmap ${wlsConfigmapName}
+                cp cargotracker/src/test/aks/cargo-tracker-jms.yaml ${modelFilePath}/cargo-tracker-jms.yaml
+                kubectl -n ${{ github.event.inputs.wlsClusterNamespace }} create configmap ${wlsConfigmapName} \
+                --from-file=${modelFilePath}
+                kubectl -n ${{ github.event.inputs.wlsClusterNamespace }} label configmap ${wlsConfigmapName} \
+                weblogic.domainUID=${{ github.event.inputs.wlsCLusterDomainName }}
                 restartVersion=$(kubectl -n ${{ github.event.inputs.wlsClusterNamespace }} get domain ${{ github.event.inputs.wlsCLusterDomainName }} '-o=jsonpath={.spec.restartVersion}')
                 # increase restart version
                 restartVersion=$((restartVersion + 1))
+                # record timestamp before apply changes
+                timestampBeforePatchingDomain=$(date +%s)
+                echo "append configmap and update restart version"
                 kubectl -n ${{ github.event.inputs.wlsClusterNamespace }} patch domain ${{ github.event.inputs.wlsCLusterDomainName }} \
                     --type=json \
-                    '-p=[{"op": "replace", "path": "/spec/restartVersion", "value": "'${restartVersion}'" }, {"op": "replace", "path": "/spec/image", "value": "'${acrImagePath}'" }]'
+                    '-p=[{"op": "replace", "path": "/spec/restartVersion", "value": "'${restartVersion}'" }, {"op": "add", "path": "/spec/configuration/model/configMap", "value": "'${wlsConfigmapName}'" }, {"op": "replace", "path": "/spec/image", "value": "'${acrImagePath}'" }]'
+                echo "timestampBeforePatchingDomain=${timestampBeforePatchingDomain}" >> $GITHUB_ENV
                 echo "acrImagePath=${acrImagePath}" >> $GITHUB_ENV
             - name: Verify all pods are updated with the latest image
               run: |
