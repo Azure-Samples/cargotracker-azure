@@ -42,7 +42,7 @@ on:
   repository_dispatch:
 
 env:
-    azCliVersion: 2.23.0
+    azCliVersion: 2.30.0
     azureCredentials: ${{ secrets.AZURE_CREDENTIALS }}
     location: eastus
     ocrSSOUser: ${{ secrets.ORC_SSOUSER }}
@@ -50,7 +50,7 @@ env:
     azureACRPassword: ${{ secrets.AZURE_ACR_PASSWORD }}
     imageTag: ${{ github.run_id }}${{ github.run_number }}
     aksRepoUserName: oracle
-    aksRepoBranchName: d1d50ccfc33bbda2420d77b8aed7dc341480ccdf
+    aksRepoBranchName: cf0de45c090c29737f901c1d2cb6457555669213
 
 jobs:
     deploy-cargo-tracker:
@@ -104,7 +104,7 @@ jobs:
               run: |
                 chmod ugo+x -R weblogic-azure/
                 cd weblogic-azure/weblogic-azure-aks/src/main/arm/scripts
-                echo ${{ env.azureACRPassword }} ${{ env.ocrSSOPSW }} | ./buildWLSDockerImage.sh ${{ github.event.inputs.wlsImagePath }} ${{ github.event.inputs.azureACRServer }} ${{ github.event.inputs.azureACRUserName }} ${{ env.imageTag }} ["${cargoTrackerBlobUrl}"] ${{ env.ocrSSOUser }} ${{ github.event.inputs.wlsClusterSize }} false
+                echo ${{ env.azureACRPassword }} ${{ env.ocrSSOPSW }} | ./buildWLSDockerImage.sh ${{ github.event.inputs.wlsImagePath }} ${{ github.event.inputs.azureACRServer }} ${{ github.event.inputs.azureACRUserName }} ${{ env.imageTag }} ["${cargoTrackerBlobUrl}"] ${{ env.ocrSSOUser }} ${{ github.event.inputs.wlsClusterSize }} false false false true []
             - name: Connect to AKS cluster
               run: |
                 echo "connect to cluster"
