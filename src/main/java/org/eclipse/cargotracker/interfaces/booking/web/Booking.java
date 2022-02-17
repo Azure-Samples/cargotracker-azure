@@ -27,8 +27,8 @@ import org.primefaces.PrimeFaces;
  * polarized ways to build user interfaces.
  */
 @Named
-@FlowScoped("booking")
-// @SessionScoped
+// @FlowScoped("booking")
+@SessionScoped
 public class Booking implements Serializable {
 
   private static final long serialVersionUID = 1L;
