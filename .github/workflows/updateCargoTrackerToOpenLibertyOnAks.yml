@@ -1,0 +1,173 @@
+name: Update Cargo Tracker to OpenLiberty on Aks
+
+on:
+  workflow_dispatch:
+    inputs:
+      OlAksResourceGroup:
+        description: 'Specify resource group of aks cluster'
+        required: true
+        default: 'ol-aks-1-9'
+      OlAksClusterName:
+        description: 'Specify name of aks cluster'
+        required: true
+        default: 'cluster3c2525'
+      azureACRServer:
+        description: 'Specify ACR server of uploading image'
+        required: true
+        default: 'acr3c2525.azurecr.io'
+      azureACRUserName:
+        description: 'Specify ACR server user name'
+        required: true
+        default: 'acr3c2525'
+      dbName:
+        description: 'Specify PostgreSQL DB name'
+        required: true
+        default: 'oldb18570822193'
+      dbAdminUser:
+        description: 'Specify PostgreSQL user'
+        required: true
+        default: 'azureadmin'
+  repository_dispatch:
+
+env:
+    azCliVersion: 2.30.0
+    azureCredentials: ${{ secrets.AZURE_CREDENTIALS }}
+    location: eastus
+    OlAksResourceGroup: ${{ github.event.inputs.OlAksResourceGroup }}
+    OlAksClusterName: ${{ github.event.inputs.OlAksClusterName }}
+    azureACRServer: ${{ github.event.inputs.azureACRServer }}
+    azureACRRegistryName: ${{ github.event.inputs.azureACRUserName }}
+    azureACRUserName: ${{ github.event.inputs.azureACRUserName }}
+    azureACRPassword: ${{ secrets.AZURE_ACR_PASSWORD }}
+    dbServerName: ${{ github.event.inputs.dbName }}.postgres.database.azure.com
+    dbUserName: ${{ github.event.inputs.dbAdminUser }}@${{ github.event.inputs.dbName }}
+    dbPassword: ${{ secrets.DB_PASSWORD }}
+    dbType: postgres
+    dbPortNumber: 5432
+    namespace: default
+    replicas: 1
+
+jobs:
+    deploy-cargo-tracker:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Set up JDK 1.8
+              uses: actions/setup-java@v1
+              with:
+                java-version: 1.8
+            - name: Install jq
+              run: |
+                sudo apt-get install jq -y
+            - uses: azure/login@v1
+              id: azure-login
+              with:
+                creds: ${{ env.azureCredentials }}
+            - name: Checkout cargotracker
+              uses: actions/checkout@v2
+              with:
+                path: cargotracker
+            - name: Build the app
+              run: |
+                echo "build the Cargo Tracker web app"
+                echo "run createOpenLibertyLocalFiles.sh"
+                ./cargotracker/.github/workflows/createOpenLibertyLocalFiles.sh
+                echo "setup environment variables"
+                export LOGIN_SERVER=${{ env.azureACRServer }}
+                export REGISTRY_NAME=${{ env.azureACRRegistryName }}
+                export USER_NAME=${{ env.azureACRUserName }}
+                export PASSWORD=${{ env.azureACRPassword }}
+                export DB_SERVER_NAME=${{ env.dbServerName }}
+                export DB_PORT_NUMBER=${{ env.dbPortNumber }}
+                export DB_NAME=${{ env.dbType }}
+                export DB_USER=${{ env.dbUserName }}
+                export DB_PASSWORD=${{ env.dbPassword }}
+                export NAMESPACE=${{ env.namespace }}
+                mvn clean install -PopenLibertyOnAks --file cargotracker/pom.xml
+            - name: Query version string for deployment verification
+              run: |
+                PROPERTY_FILE="cargotracker/target/cargo-tracker/WEB-INF/classes/org/eclipse/cargotracker/messages.properties"
+                PROP_KEY=versionString
+                deployVersion=$(cat $PROPERTY_FILE | grep "$PROP_KEY" | cut -d '=' -f 2)
+                echo "deployVersion=${deployVersion}" >> $GITHUB_ENV
+            - name: Build image and upload to ACR
+              run: |
+                echo "get image name and version"
+                cd cargotracker/
+                IMAGE_NAME=$(mvn -q -Dexec.executable=echo -Dexec.args='${project.artifactId}' --non-recursive exec:exec) 
+                IMAGE_VERSION=$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
+
+                echo "build image and upload"
+                cd target/
+                docker build -t ${IMAGE_NAME}:${IMAGE_VERSION} --pull --file=Dockerfile .
+                docker tag ${IMAGE_NAME}:${IMAGE_VERSION} ${{ env.azureACRServer }}/${IMAGE_NAME}:${IMAGE_VERSION}
+                docker login -u ${{ env.azureACRUserName }} -p ${{ env.azureACRPassword }} ${{ env.azureACRServer }}
+                
+                docker push ${{ env.azureACRServer }}/${IMAGE_NAME}:${IMAGE_VERSION}
+            - name: Connect to AKS cluster
+              run: |
+                echo "connect to cluster"
+                az aks get-credentials --resource-group ${{ env.OlAksResourceGroup }} --name ${{ env.OlAksClusterName }}
+            - name: Apply deployment files
+              run: |
+                echo "record time before restart"
+                timestampBeforePatchingDomain=$(date +%s)
+                cd cargotracker/target/
+                kubectl apply -f db-secret.yaml
+                kubectl apply -f openlibertyapplication.yaml
+                # restart every time to make sure
+                kubectl rollout restart deployment/cargo-tracker-cluster
+                echo "timestampBeforePatchingDomain=${timestampBeforePatchingDomain}" >> $GITHUB_ENV
+            - name: Verify pods are ready
+              run: |
+                # interval of checking pod status.
+                checkPodStatusInterval=20
+                # max attempt to check pod status.
+                checkPodStatusMaxAttempts=30
+                updatedPodNum=0
+                attempt=0
+                echo $timestampBeforePatchingDomain ${{ env.replicas }} $checkPodStatusMaxAttempts $checkPodStatusInterval
+                while [[ ${updatedPodNum} -ne ${{ env.replicas }} ]] && [[ $attempt -le ${checkPodStatusMaxAttempts} ]]; do
+                    echo "attempts ${attempt}"
+                    ret=$(kubectl get pods -n ${{ env.namespace }} -o json | jq -r '.items[] | select(.metadata.name|test("cargo-tracker-cluster.")) | .metadata.creationTimestamp' | tr -d "\"")
+                    counter=0
+                    for item in $ret; do
+                        podCreateTimeStamp=$(date -u -d "${item}" +"%s")
+                        echo "pod create time: $podCreateTimeStamp, base time: ${timestampBeforePatchingDomain}"
+                        if [[ ${podCreateTimeStamp} -gt ${timestampBeforePatchingDomain} ]]; then
+                            counter=$((counter + 1))
+                        fi
+                    done
+                    updatedPodNum=$counter
+                    echo "Number of new pod: ${updatedPodNum}"
+                    attempt=$((attempt + 1))
+                    sleep ${checkPodStatusInterval}
+                done
+                if [[ ${attempt} -gt ${checkPodStatusMaxAttempts} ]]; then
+                    echo "Failed to restart all pods. "
+                    exit 1
+                fi
+            - name: Query Application URL
+              run: |
+                externalIp=$(kubectl get service -o json | jq -r '.items[] | select(.metadata.name=="cargo-tracker-cluster") | .status.loadBalancer.ingress[0].ip')
+                echo "external ip is: " $externalIp
+                echo "appURL=${externalIp}:9080" >> $GITHUB_ENV
+            - name: Verify that the app is update
+              run: |
+                # install dependencies
+                sudo apt-get install libegl1\
+                      libhyphen0\
+                      libopus0\
+                      libwoff1\
+                      libharfbuzz-icu0\
+                      libgstreamer-plugins-base1.0-0\
+                      libgstreamer-gl1.0-0\
+                      libgstreamer-plugins-bad1.0-0\
+                      libopenjp2-7\
+                      libwebpdemux2\
+                      libenchant1c2a\
+                      libgles2\
+                      gstreamer1.0-libav -y
+                appURL=http://${{ env.appURL }}/
+                cd cargotracker/src/test/aks/playwright-ui-test
+                mvn clean install
+                mvn exec:java -e -Dexec.mainClass=com.microsoft.azure.javaee.FetchBuildVersion -Dexec.args="'${appURL}' '${{ env.deployVersion }}'"

@@ -9,6 +9,7 @@ import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
 import org.eclipse.cargotracker.application.HandlingEventService;
 import org.eclipse.cargotracker.domain.model.handling.CannotCreateHandlingEventException;
+import org.eclipse.cargotracker.infrastructure.messaging.JmsQueueNames;
 import org.eclipse.cargotracker.interfaces.handling.HandlingEventRegistrationAttempt;
 
 /** Consumes handling event registration attempt messages and delegates to proper registration. */
@@ -19,7 +20,7 @@ import org.eclipse.cargotracker.interfaces.handling.HandlingEventRegistrationAtt
           propertyValue = "javax.jms.Queue"),
       @ActivationConfigProperty(
           propertyName = "destinationLookup",
-          propertyValue = "java:app/jms/HandlingEventRegistrationAttemptQueue")
+          propertyValue = JmsQueueNames.HANDLING_EVENT_REGISTRATION_ATTEMPT_QUEUE)
     })
 public class HandlingEventRegistrationAttemptConsumer implements MessageListener {
 

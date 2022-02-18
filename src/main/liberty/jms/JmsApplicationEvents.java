@@ -7,6 +7,7 @@ import javax.annotation.Resource;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.jms.Destination;
+import javax.jms.JMSConnectionFactory;
 import javax.jms.JMSContext;
 import org.eclipse.cargotracker.application.ApplicationEvents;
 import org.eclipse.cargotracker.domain.model.cargo.Cargo;
@@ -19,7 +20,9 @@ public class JmsApplicationEvents implements ApplicationEvents, Serializable {
 
   private static final long serialVersionUID = 1L;
   private static final int LOW_PRIORITY = 0;
-  @Inject JMSContext jmsContext;
+  @Inject 
+  @JMSConnectionFactory("java:comp/DefaultJMSConnectionFactory")
+  JMSContext jmsContext;
 
   @Resource(lookup = JmsQueueNames.CARGO_HANDLED_QUEUE)
   private Destination cargoHandledQueue;
