@@ -52,7 +52,7 @@ jobs:
                     --name ${{ env.dbName }}  \
                     --location ${{ env.location }} \
                     --admin-user ${{ env.dbAdminUser }} \
-                    --ssl-enforcement Enabled \
+                    --ssl-enforcement Disabled \
                     --public-network-access Enabled \
                     --admin-password ${{ env.dbPassword }} \
                     --sku-name B_Gen5_1

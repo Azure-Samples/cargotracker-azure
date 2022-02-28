@@ -38,7 +38,7 @@ env:
     azureACRServer: ${{ github.event.inputs.azureACRServer }}
     azureACRRegistryName: ${{ github.event.inputs.azureACRUserName }}
     azureACRUserName: ${{ github.event.inputs.azureACRUserName }}
-    azureACRPassword: ${{ secrets.AZURE_ACR_PASSWORD }}
+    azureACRPassword: ${{ secrets.AZURE_OPEN_LIBERTY_ACR_PASSWORD }}
     dbServerName: ${{ github.event.inputs.dbName }}.postgres.database.azure.com
     dbUserName: ${{ github.event.inputs.dbAdminUser }}@${{ github.event.inputs.dbName }}
     dbPassword: ${{ secrets.DB_PASSWORD }}
@@ -69,8 +69,6 @@ jobs:
             - name: Build the app
               run: |
                 echo "build the Cargo Tracker web app"
-                echo "run createOpenLibertyLocalFiles.sh"
-                ./cargotracker/.github/workflows/createOpenLibertyLocalFiles.sh
                 echo "setup environment variables"
                 export LOGIN_SERVER=${{ env.azureACRServer }}
                 export REGISTRY_NAME=${{ env.azureACRRegistryName }}
@@ -82,17 +80,17 @@ jobs:
                 export DB_USER=${{ env.dbUserName }}
                 export DB_PASSWORD=${{ env.dbPassword }}
                 export NAMESPACE=${{ env.namespace }}
-                mvn clean install -PopenLibertyOnAks --file cargotracker/pom.xml
+                mvn clean install -PopenLibertyOnAks --file cargotracker/cargotracker-liberty/pom.xml
             - name: Query version string for deployment verification
               run: |
-                PROPERTY_FILE="cargotracker/target/cargo-tracker/WEB-INF/classes/org/eclipse/cargotracker/messages.properties"
+                PROPERTY_FILE="cargotracker/cargotracker-liberty/target/cargo-tracker/WEB-INF/classes/org/eclipse/cargotracker/messages.properties"
                 PROP_KEY=versionString
                 deployVersion=$(cat $PROPERTY_FILE | grep "$PROP_KEY" | cut -d '=' -f 2)
                 echo "deployVersion=${deployVersion}" >> $GITHUB_ENV
             - name: Build image and upload to ACR
               run: |
                 echo "get image name and version"
-                cd cargotracker/
+                cd cargotracker/cargotracker-liberty/
                 IMAGE_NAME=$(mvn -q -Dexec.executable=echo -Dexec.args='${project.artifactId}' --non-recursive exec:exec) 
                 IMAGE_VERSION=$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
 
@@ -111,10 +109,11 @@ jobs:
               run: |
                 echo "record time before restart"
                 timestampBeforePatchingDomain=$(date +%s)
-                cd cargotracker/target/
+                cd cargotracker/cargotracker-liberty/target/
                 kubectl apply -f db-secret.yaml
                 kubectl apply -f openlibertyapplication.yaml
                 # restart every time to make sure
+                sleep 30
                 kubectl rollout restart deployment/cargo-tracker-cluster
                 echo "timestampBeforePatchingDomain=${timestampBeforePatchingDomain}" >> $GITHUB_ENV
             - name: Verify pods are ready
@@ -168,6 +167,6 @@ jobs:
                       libgles2\
                       gstreamer1.0-libav -y
                 appURL=http://${{ env.appURL }}/
-                cd cargotracker/src/test/aks/playwright-ui-test
+                cd cargotracker/cargotracker-liberty/src/test/aks/playwright-ui-test
                 mvn clean install
                 mvn exec:java -e -Dexec.mainClass=com.microsoft.azure.javaee.FetchBuildVersion -Dexec.args="'${appURL}' '${{ env.deployVersion }}'"

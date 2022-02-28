@@ -114,12 +114,12 @@ jobs:
                         s/#userAssignedManagedIdentity#/${userAssignedManagedIdentity}/g; \
                         s/#testbranchName#/${aksRepoBranchName}/g; \
                         s/#gitUserName#/${aksRepoUserName}/g" \
-                        cargotracker/src/test/openlibertyonaks/parameters.json
+                        cargotracker/cargotracker-liberty/src/test/aks/parameters.json
             - name: Archive parameters.json
               uses: actions/upload-artifact@v1
               with:
                 name: archivefiles
-                path: cargotracker/src/test/openlibertyonaks/parameters.json
+                path: cargotracker/cargotracker-liberty/src/test/aks/parameters.json
             - name: Validate Deploy of WebLogic Server Cluster Domain offer
               id: validate-openliberty-cluster-deployment
               uses: azure/CLI@v1
@@ -130,7 +130,7 @@ jobs:
                     --debug \
                     --resource-group ${{ env.resourceGroupForOpenLibertyAks }} \
                     --name openliberty-on-aks \
-                    --parameters @cargotracker/src/test/openlibertyonaks/parameters.json \
+                    --parameters @cargotracker/cargotracker-liberty/src/test/aks/parameters.json \
                     --template-file ${artifactName}/mainTemplate.json
             - name: Deploy WebLogic Server Cluster Domain offer
               id: deploy-openliberty-cluster
@@ -142,5 +142,5 @@ jobs:
                     --verbose \
                     --resource-group ${{ env.resourceGroupForOpenLibertyAks }} \
                     --name openliberty-on-aks \
-                    --parameters @cargotracker/src/test/openlibertyonaks/parameters.json \
+                    --parameters @cargotracker/cargotracker-liberty/src/test/aks/parameters.json \
                     --template-file ${artifactName}/mainTemplate.json
